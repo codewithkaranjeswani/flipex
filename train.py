@@ -71,7 +71,7 @@ optimizer = torch.optim.Adam(model.fc.parameters(), lr=opt.lr, betas=(opt.b1, op
 cross_entropy = torch.nn.CrossEntropyLoss().to(device)
 
 
-pbar_epochs = tqdm(total=len(range(opt.n_epochs)), desc='epochs', leave=False)
+pbar_epoch = tqdm(total=len(range(opt.n_epochs)), desc='epochs', leave=False)
 for epoch in range(1, opt.n_epochs+1):
 	gt_index, pred_index = [], []
 	running_loss = 0
@@ -104,3 +104,4 @@ for epoch in range(1, opt.n_epochs+1):
 			round(running_loss / opt.batch_size, 3), round(acc, 3)))
 	pbar_epoch.update(1)
 
+torch.save(model.state_dict(), "resnet18_{0:02d}.pth".format(opt.n_epochs+1))
