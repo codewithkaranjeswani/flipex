@@ -5,12 +5,15 @@ import pandas as pd
 from PIL import Image
 
 import torch
+import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 
 class My_Dataset(Dataset):
 	def __init__(self, root, img_dir):
 		self.pil2tensor = transforms.ToTensor()
+		self.new_size = (224, 224)
+		self.resize = torchvision.transforms.Resize(self.new_size)
 		df = pd.read_csv(os.path.join(root, 'train10.csv'), sep=',')
 		self.img_dir = img_dir
 		self.id_list = df['id'].to_list()
@@ -30,8 +33,7 @@ class My_Dataset(Dataset):
 		target = torch.zeros(self.ndims, 1)
 		target[ind] = 1
 		img = Image.open(os.path.join(self.img_dir, self.fn_list[index]))
-		newsize = (224, 224)
-		img = img.resize(newsize) # Never do this, its very time consuming!!!
+		img = self.resize(img)
 		img = self.pil2tensor(img)
 		return {"input": img, "target": target, "img_path": self.fn_list[index], \
 			"id": self.id_list[index], "ind": ind, "category": self.rev_dict[ind]}

@@ -24,7 +24,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--n_epochs", type=int, default=50, help="number of epochs of training")
 # parser.add_argument("--decay_epoch", type=int, default=100, help="epoch from which to start lr decay")
 # parser.add_argument("--dataset_name", type=str, default="ixi_dataset_mri_pd_t2_split_randomly", help="name of the dataset")
-parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
+parser.add_argument("--batch_size", type=int, default=256, help="size of the batches")
 parser.add_argument("--lr", type=float, default=2e-3, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of second order momentum of gradient")
@@ -53,41 +53,54 @@ vertical_attribute_dict = np.load(os.path.join(root, "vertical_attributes.npy"),
 no_of_classes = len(vertical_attribute_dict.keys())
 
 model = resnet18(pretrained=True)
-for param in model.parameters():
-	param.requires_grad = False
+# for param in model.parameters():
+# 	param.requires_grad = False
 
 num_ftrs = model.fc.in_features
 model.fc = nn.Sequential(
 		nn.Dropout(0.5),
-		nn.Linear(num_ftrs, no_of_classes),
-		nn.Softmax()
+		nn.Linear(num_ftrs, no_of_classes)
 )
 
 model = model.to(device)
 
 train_set = My_Dataset(root, "../train10_images")
-train_loader = DataLoader(train_set, batch_size=1024, shuffle=True)
+train_loader = DataLoader(train_set, batch_size=opt.batch_size, shuffle=True, num_workers=8)
 
 optimizer = torch.optim.Adam(model.fc.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
 cross_entropy = torch.nn.CrossEntropyLoss().to(device)
 
-for epoch in tqdm(range(1, opt.n_epochs+1), desc="epochs"):
-	for i, batch in tqdm(enumerate(train_loader), desc="train ", total=len(train_loader), leave=False):
+
+pbar_epochs = tqdm(total=len(range(opt.n_epochs)), desc='epochs', leave=False)
+for epoch in range(1, opt.n_epochs+1):
+	gt_index, pred_index = [], []
+	running_loss = 0
+	pbar_train = tqdm(total=len(train_loader), desc='train', leave=False)
+	for i, batch in enumerate(train_loader):
 		inp = Variable(batch["input"].type(torch.FloatTensor)).to(device)
-		# target = Variable(batch["target"].squeeze(-1).type(torch.LongTensor)).to(device)
 		target_ind = Variable(batch["ind"].type(torch.LongTensor)).to(device)
-		model.train()
+		# model.train()
 		pred = model(inp)
 		optimizer.zero_grad()
-		# print(target.shape, pred.shape)
 		loss = cross_entropy(pred, target_ind)
+		running_loss += loss.item()
 		loss.backward()
 		optimizer.step()
-		_, pred_ind = torch.max(pred)
+		_, pred_ind = torch.max(pred, 1)
 
-		# accuracy
-		# gt_index = batch["ind"]
-		# pred_index = torch.argmax(pred)
-		# print(model.state_dict())
-	print(loss.cpu())
+		gt_index += list(batch["ind"].detach().cpu().numpy())
+		pred_index += list(pred_ind.detach().cpu().numpy())
+
+		acc_batch = np.mean(np.array(gt_index) == np.array(pred_index))
+
+		pbar_train.set_description("train: Loss: {0}, Acc: {1}".format(\
+			round(loss.item(), 3), round(acc_batch, 3)))
+		pbar_train.update(1)
+
+
+	acc = np.mean(np.array(gt_index) == np.array(pred_index))
+	# print("epoch: ", epoch," acc: ", acc, " loss: ", loss.cpu())
+	pbar_epoch.set_description("epochs: Loss: {0}, Acc: {1}".format(\
+			round(running_loss / opt.batch_size, 3), round(acc, 3)))
+	pbar_epoch.update(1)
 
