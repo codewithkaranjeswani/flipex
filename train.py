@@ -14,7 +14,7 @@ from dataset.My_Dataset import My_Dataset
 
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18, resnext101_32x8d
+from torchvision.models import resnet18, resnext101_32x8d, resnext50_32x4d
 import torch.nn.functional as F
 from torch.backends import cudnn
 import warnings
@@ -24,7 +24,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--n_epochs", type=int, default=50, help="number of epochs of training")
 # parser.add_argument("--decay_epoch", type=int, default=100, help="epoch from which to start lr decay")
 # parser.add_argument("--dataset_name", type=str, default="ixi_dataset_mri_pd_t2_split_randomly", help="name of the dataset")
-parser.add_argument("--batch_size", type=int, default=256, help="size of the batches")
+parser.add_argument("--batch_size", type=int, default=128, help="size of the batches")
 parser.add_argument("--lr", type=float, default=2e-3, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of second order momentum of gradient")
@@ -52,7 +52,7 @@ root = "../Sample_Data_Readme_and_other_docs"
 vertical_attribute_dict = np.load(os.path.join(root, "vertical_attributes.npy"), allow_pickle=True).tolist()
 no_of_classes = len(vertical_attribute_dict.keys())
 
-model = resnext101_32x8d(pretrained=True)
+model = resnext50_32x4d(pretrained=True)
 # for param in model.parameters():
 # 	param.requires_grad = False
 
@@ -65,7 +65,7 @@ model.fc = nn.Sequential(
 model = model.to(device)
 
 train_set = My_Dataset(root, "../train10_images")
-train_loader = DataLoader(train_set, batch_size=opt.batch_size, shuffle=True, num_workers=8)
+train_loader = DataLoader(train_set, batch_size=opt.batch_size, shuffle=True, num_workers=opt.n_cpu)
 
 optimizer = torch.optim.Adam(model.fc.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
 cross_entropy = torch.nn.CrossEntropyLoss().to(device)
@@ -97,11 +97,10 @@ for epoch in range(1, opt.n_epochs+1):
 			round(loss.item(), 3), round(acc_batch, 3)))
 		pbar_train.update(1)
 
-
 	acc = np.mean(np.array(gt_index) == np.array(pred_index))
 	# print("epoch: ", epoch," acc: ", acc, " loss: ", loss.cpu())
 	pbar_epoch.set_description("epochs: Loss: {0}, Acc: {1}".format(\
 			round(running_loss / opt.batch_size, 3), round(acc, 3)))
 	pbar_epoch.update(1)
 
-torch.save(model.state_dict(), "resnext101_32x8d_{0:02d}.pth".format(opt.n_epochs+1))
+torch.save(model.state_dict(), "resnext50_32x4d_{0:02d}.pth".format(opt.n_epochs+1))
