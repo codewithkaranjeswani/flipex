@@ -14,7 +14,7 @@ from dataset.My_Dataset import My_Dataset
 
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18
+from torchvision.models import resnet18, resnext101_32x8d
 import torch.nn.functional as F
 from torch.backends import cudnn
 import warnings
@@ -52,7 +52,7 @@ root = "../Sample_Data_Readme_and_other_docs"
 vertical_attribute_dict = np.load(os.path.join(root, "vertical_attributes.npy"), allow_pickle=True).tolist()
 no_of_classes = len(vertical_attribute_dict.keys())
 
-model = resnet18(pretrained=True)
+model = resnext101_32x8d(pretrained=True)
 # for param in model.parameters():
 # 	param.requires_grad = False
 
@@ -104,4 +104,4 @@ for epoch in range(1, opt.n_epochs+1):
 			round(running_loss / opt.batch_size, 3), round(acc, 3)))
 	pbar_epoch.update(1)
 
-torch.save(model.state_dict(), "resnet18_{0:02d}.pth".format(opt.n_epochs+1))
+torch.save(model.state_dict(), "resnext101_32x8d_{0:02d}.pth".format(opt.n_epochs+1))
