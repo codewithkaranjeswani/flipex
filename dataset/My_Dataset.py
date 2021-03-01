@@ -22,7 +22,7 @@ class My_Dataset(Dataset):
 		vertical_attribute_dict = np.load(os.path.join(root, "vertical_attributes.npy"),\
 			allow_pickle=True).tolist()
 		
-		att_list = list(vertical_attribute_dict.keys())
+		att_list = sorted(vertical_attribute_dict.keys())
 		self.ndims = len(att_list)
 		self.att_dict = {att_list[x] : x for x in range(len(att_list))}
 		self.rev_dict = {x : att_list[x] for x in range(len(att_list))}
@@ -35,7 +35,7 @@ class My_Dataset(Dataset):
 		img = Image.open(os.path.join(self.img_dir, self.fn_list[index]))
 		img = self.resize(img)
 		img = self.pil2tensor(img)
-		return {"input": img, "target": target, "img_path": self.fn_list[index], \
+		return {"input": img, "target": target, "img_fn": self.fn_list[index], \
 			"id": self.id_list[index], "ind": ind, "category": self.rev_dict[ind]}
 
 	def __len__(self):

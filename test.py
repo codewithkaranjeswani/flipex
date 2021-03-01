@@ -41,10 +41,7 @@ no_of_classes = len(vertical_attribute_dict.keys())
 
 model = resnext50_32x4d(pretrained=False)
 num_ftrs = model.fc.in_features
-model.fc = nn.Sequential(
-		nn.Dropout(0.5),
-		nn.Linear(num_ftrs, no_of_classes)
-)
+model.fc = nn.Linear(num_ftrs, no_of_classes)
 model = model.to(device)
 
 model.load_state_dict(torch.load(opt.ins, map_location=device))
