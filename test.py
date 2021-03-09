@@ -17,8 +17,6 @@ import torch.nn as nn
 from torchvision.models import resnet18, resnext101_32x8d, resnext50_32x4d
 import torch.nn.functional as F
 from torch.backends import cudnn
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning) 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_file", type=str, default="../Sample_Data_Readme_and_other_docs", help="location of dataset")

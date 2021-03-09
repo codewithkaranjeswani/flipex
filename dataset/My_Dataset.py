@@ -3,6 +3,9 @@ import os
 import numpy as np
 import pandas as pd
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+import cv2
 
 import torch
 import torchvision
@@ -11,6 +14,8 @@ from torch.utils.data import Dataset
 
 class My_Dataset(Dataset):
 	def __init__(self, csv_file, img_dir):
+		thing = csv_file.split('/')[2:-2]
+		ano_path = os.path.join('/home', *thing, "Sample_Data_Readme_and_other_docs")
 		self.pil2tensor = transforms.ToTensor()
 		self.new_size = (224, 224)
 		self.resize = torchvision.transforms.Resize(self.new_size)
@@ -20,8 +25,7 @@ class My_Dataset(Dataset):
 		self.fn_list = df['filename'].to_list()
 		self.cat_list = df['category'].to_list()
 		vertical_attribute_dict = np.load(\
-			os.path.join("../Sample_Data_Readme_and_other_docs",\
-			"vertical_attributes.npy"), allow_pickle=True).tolist()
+			os.path.join(ano_path, "vertical_attributes.npy"), allow_pickle=True).tolist()
 		
 		att_list = sorted(vertical_attribute_dict.keys())
 		self.ndims = len(att_list)
