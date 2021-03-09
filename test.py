@@ -48,7 +48,8 @@ model.load_state_dict(torch.load(opt.ins, map_location=device))
 model.eval()
 
 test_set = My_Dataset(root, "../train10_images")
-test_loader = DataLoader(test_set, batch_size=1, shuffle=True, num_workers=opt.n_cpu)
+test_loader = DataLoader(test_set, batch_size=1, shuffle=True, \
+  num_workers=opt.n_cpu, pin_memory=True, persistent_workers=True)
 
 cross_entropy = torch.nn.CrossEntropyLoss().to(device)
 

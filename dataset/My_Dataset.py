@@ -10,17 +10,18 @@ import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 
 class My_Dataset(Dataset):
-	def __init__(self, root, img_dir):
+	def __init__(self, csv_file, img_dir):
 		self.pil2tensor = transforms.ToTensor()
 		self.new_size = (224, 224)
 		self.resize = torchvision.transforms.Resize(self.new_size)
-		df = pd.read_csv(os.path.join(root, 'train10.csv'), sep=',')
+		df = pd.read_csv(os.path.join(csv_file), sep=',')
 		self.img_dir = img_dir
 		self.id_list = df['id'].to_list()
 		self.fn_list = df['filename'].to_list()
 		self.cat_list = df['category'].to_list()
-		vertical_attribute_dict = np.load(os.path.join(root, "vertical_attributes.npy"),\
-			allow_pickle=True).tolist()
+		vertical_attribute_dict = np.load(\
+			os.path.join("../Sample_Data_Readme_and_other_docs",\
+			"vertical_attributes.npy"), allow_pickle=True).tolist()
 		
 		att_list = sorted(vertical_attribute_dict.keys())
 		self.ndims = len(att_list)

@@ -4,3 +4,5 @@ models/
 preproc/
 models/
 wandb/
+train_test_split/
+logs/
