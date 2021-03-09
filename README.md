@@ -16,6 +16,5 @@ Using a 26-class Resnext classifier initialized with pretrained model (which is 
 5. In all predictions, we threshold the output for attribute prediction at 0.8 (this can be changed), since the last layer is a sigmoid.
 
 # Conclusion
-1. We divided the entire data into train (~75%) and validation (~25%) keeping the same distribution of categories in both.
-2. We trained the ResNext-50 category classifier for 13 epochs and 46-headed ResNext-50 for 8 epochs, finally we fonud that in the validation set we got accuracy of ~64%.
+1. We divided the entire data into train (~75%) and validation (~25%) keeping the same distribution of categories in both. We trained the ResNext-50 category classifier for 13 epochs and 46-headed ResNext-50 for 8 epochs, finally we found that in the validation set we got accuracy of ~64%.
 3. We find that the accuracy (IOU) of our 46-headed ResNext-50 stalled at a mere 64%. And it predicts a lot of unnecessary attributes which makes it less accurate.
