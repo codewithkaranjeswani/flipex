@@ -1,8 +1,10 @@
-dataset/__pycache__/
 *.pth
+*.sh
+dataset/__pycache__/
 models/
 preproc/
 models/
 wandb/
 train_test_split/
 logs/
+predictions*
